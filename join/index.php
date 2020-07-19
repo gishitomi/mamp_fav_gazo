@@ -36,7 +36,6 @@ if (!empty($_POST)) {
     if (empty($error)) {
         // 投稿時の時刻、ファイル名をくっつけて保管
         $image = date('YmdHis') . $_FILES['image']['name'];
-        $image = file_get_contents($image);
         move_uploaded_file(
             $_FILES['image']['tmp_name'],
             '../member_picture/' . $image
