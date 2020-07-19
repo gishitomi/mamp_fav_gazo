@@ -8,7 +8,7 @@
 <body>
     <div class="container">
         <p>ユーザー登録されました！！</p>
-        <p><a href="../index.php">ログインする</a></p>
+        <p><a href="../login.php">ログインする</a></p>
     </div>
 </body>
 </html>
