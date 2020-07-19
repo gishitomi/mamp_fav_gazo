@@ -1,37 +1,47 @@
-<?php 
-    session_start();
-    require('dbconnect.php');
-    if (!empty($_POST)) {
-        if ($_POST['email'] === '') {
-            $error['email'] = 'blank';
-        }
-        if ($_POST['password'] === '') {
-            $error['password'] = 'blank';
-        }
-        if ($_POST['email'] !== '' && $_POST['password'] !== '') {
-            $login = $db->prepare('SELECT * FROM members WHERE email=? AND password=?');
-            $login->execute(array(
-                $_POST['email'],
-                sha1($_POST['password'])
-            ));
-            $member = $login->fetch();
+<?php
+session_start();
+require('dbconnect.php');
 
-            if ($member) {
-                $_SESSION['id'] = $member['id'];
-                $_SESSION['time'] = time();
+if ($_COOKIE['email'] !== '') {
+    $email = $_COOKIE['email'];
+}
 
-                header('location: index.php');
-                exit();
-            } else {
-                $error['login'] = 'blank';
+if (!empty($_POST)) {
+    $email = $_POST['email'];
+    if ($_POST['email'] === '') {
+        $error['email'] = 'blank';
+    }
+    if ($_POST['password'] === '') {
+        $error['password'] = 'blank';
+    }
+    if ($_POST['email'] !== '' && $_POST['password'] !== '') {
+        $login = $db->prepare('SELECT * FROM members WHERE email=? AND password=?');
+        $login->execute(array(
+            $_POST['email'],
+            sha1($_POST['password'])
+        ));
+        $member = $login->fetch();
+
+        if ($member) {
+            $_SESSION['id'] = $member['id'];
+            $_SESSION['time'] = time();
+
+            if ($_POST['save'] === 'on') {
+                setcookie('email', $_POST['email'], time() + 60 * 60 * 24 * 14);
             }
+
+            header('location: index.php');
+            exit();
+        } else {
+            $error['login'] = 'blank';
         }
     }
+}
 
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 
 <head>
     <meta charset="UTF-8">
@@ -48,18 +58,18 @@
                 <dl>
                     <dt>メールアドレス</dt>
                     <dd>
-                        <input type="text" name="email" size="30" maxlength="30" value="<?php print(htmlspecialchars($_POST['email'], ENT_QUOTES)); ?>">
-                        <?php if ($error['email'] === 'blank'): ?>
+                        <input type="text" name="email" size="30" maxlength="30" value="<?php print(htmlspecialchars($email, ENT_QUOTES)); ?>">
+                        <?php if ($error['email'] === 'blank') : ?>
                             <p class="error">*メールアドレスが入力されていません。</p>
                         <?php endif; ?>
                     </dd>
                     <dt>パスワード</dt>
                     <dd>
                         <input type="password" name="password" size="30" maxlength="255" value="<?php print(htmlspecialchars($_POST['password'], ENT_QUOTES)); ?>">
-                        <?php if ($error['password'] === 'blank'): ?>
+                        <?php if ($error['password'] === 'blank') : ?>
                             <p class="error">*パスワードが入力されていません。</p>
                         <?php endif; ?>
-                        <?php if ($error['login'] === 'blank'): ?>
+                        <?php if ($error['login'] === 'blank') : ?>
                             <p class="error">*指定されたメールアドレス、パスワードは正しくありません。</p>
                         <?php endif; ?>
                     </dd>
